@@ -1,6 +1,13 @@
 from flask import Flask, request, jsonify
 from google.cloud import datastore
 
+# Username-Password-Authentication
+# password1.xyz
+
+# domain, dev-mhuy7ewvs3ucy4hh.us.auth0.com
+# client id, hpeg00KD8CtCVEqdb41zGzUhQRGKWsAt
+# client secret, 9BRG--1t5EheUo11WRCJw76PIa58VfsYeavui4mS_N355tbf7EtwTEmDTc2muEgn
+
 import requests
 import json
 
@@ -16,9 +23,9 @@ client = datastore.Client()
 LODGINGS = "lodgings"
 
 # Update the values of the following 3 variables
-CLIENT_ID = 'YOUR_CLIENT_ID'
-CLIENT_SECRET = 'YOUR_CLIENT_SECRET'
-DOMAIN = 'YOUR_AUTH0_DOMAIN'
+CLIENT_ID = 'hpeg00KD8CtCVEqdb41zGzUhQRGKWsAt'
+CLIENT_SECRET = '9BRG--1t5EheUo11WRCJw76PIa58VfsYeavui4mS_N355tbf7EtwTEmDTc2muEgn'
+DOMAIN = 'dev-mhuy7ewvs3ucy4hh.us.auth0.com'
 # For example
 # DOMAIN = '493-24-spring.us.auth0.com'
 # Note: don't include the protocol in the value of the variable DOMAIN
