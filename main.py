@@ -124,6 +124,8 @@ def verify_jwt(request):
 
 ############################################################################################################
 BASE_URL = 'http://127.0.0.1:8080'
+#BASE_URL = "https://cs493-a5-2.uc.r.appspot.com"
+
 # a5
 
 @app.route('/')
@@ -179,9 +181,7 @@ def decode_a_jwt(): # Copied from the explorations.
 @app.route('/businesses', methods=['POST'])
 def create_a_business():
 
-    # Decode the token.
     # Get the content.
-    payload = verify_jwt(request)
     content = request.get_json()
 
     # TODO: Check for missing required fields
@@ -189,6 +189,9 @@ def create_a_business():
     for field in required_fields:
         if field not in content:
             return jsonify(Error="The request body is missing at least one of the required attributes"), 400
+    
+    # Decode the token.
+    payload = verify_jwt(request)
 
     # Check if the token is valid.
     if not payload:
@@ -224,6 +227,45 @@ def create_a_business():
     }
 
     return jsonify(response), 201
+
+# Get a Business
+@app.route('/businesses/<int:business_id>', methods=['GET'])
+def get_business(business_id):
+    # Decode the token
+    payload = verify_jwt(request)
+
+    # Check if the token is valid
+    if not payload:
+        return jsonify(Error="Invalid or missing JWT"), 401
+
+    user_id = payload["sub"]
+
+    # Retrieve the business
+    business_key = client.key("businesses", business_id)
+    business = client.get(key=business_key)
+
+    # Check if the business exists
+    if not business:
+        return jsonify(Error="No business with this business_id exists"), 403
+
+    # Check if the user is the owner
+    if business["owner_id"] != user_id:
+        return jsonify(Error="You do not have permission to view this business"), 403
+
+    # Prepare the response
+    response = {
+        "id": business.key.id,
+        "owner_id": business["owner_id"],
+        "name": business["name"],
+        "street_address": business["street_address"],
+        "city": business["city"],
+        "state": business["state"],
+        "zip_code": business["zip_code"],
+        "inspection_score": business["inspection_score"],
+        "self": BASE_URL + "/businesses/" + str(business.key.id)
+    }
+
+    return jsonify(response), 200
 
 # List Businesses
 @app.route('/businesses', methods=['GET'])
