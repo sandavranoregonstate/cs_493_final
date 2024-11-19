@@ -1,0 +1,1648 @@
+{
+	"info": {
+		"_postman_id": "0e647f24-e1aa-4982-a8e6-7b01d0795dd1",
+		"name": "assignment5",
+		"description": "### GET /businesses and /owners/:owner_id/businesses must return an array of business objects.\n\n---\n\nDirections:\n\n1. If test fails, check test message and look at the response body. Determine if legitimate fail or response is in different format.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "9037348"
+	},
+	"item": [
+		{
+			"name": "Generate and decode jwt (3 points)",
+			"item": [
+				{
+					"name": "1. get wallace jwt (1 point)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"wallace_jwt\", pm.response.json()[\"id_token\"]);\r",
+									"\r",
+									"let points = 0; \r",
+									"\r",
+									"pm.test(\"200 status code (0.25 pts)\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"pm.test(\"content is valid (0.75 pts)\", function () {\r",
+									"    const respJSON = pm.response.json();\r",
+									"    pm.expect(respJSON).to.have.property(\"access_token\");\r",
+									"    pm.expect(respJSON).to.have.property(\"id_token\");\r",
+									"    pm.expect(respJSON).to.have.property(\"scope\");\r",
+									"    pm.expect(respJSON).to.have.property(\"expires_in\");\r",
+									"    pm.expect(respJSON).to.have.property(\"token_type\");            \r",
+									"    points += 0.75\r",
+									"});\r",
+									"\r",
+									"\r",
+									"console.log('******* Generate, decode token Test 1 points = ' + points);\r",
+									"console.log('******* Generate, decode token Tests current points = ' + points);\r",
+									"pm.environment.set(\"points_token\", points);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \r\n\t\"username\": \"{{wallace_username}}\",\r\n\t\"password\": \"{{password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{app_url}}/login",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. decode wallace jwt(0.5 points)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"wallace_sub\", pm.response.json()[\"sub\"]);\r",
+									"\r",
+									"let points = 0;\r",
+									"\r",
+									"pm.test(\"200 status code (0.25 pts)\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"pm.test(\"content is valid (0.25 pts)\", function () {\r",
+									"    const respJSON = pm.response.json();\r",
+									"    pm.expect(respJSON).to.have.property(\"aud\");\r",
+									"    pm.expect(respJSON).to.have.property(\"email\");  \r",
+									"    pm.expect(respJSON).to.have.property(\"email_verified\");  \r",
+									"    pm.expect(respJSON).to.have.property(\"exp\");  \r",
+									"    pm.expect(respJSON).to.have.property(\"iat\");  \r",
+									"    pm.expect(respJSON).to.have.property(\"iss\");  \r",
+									"    pm.expect(respJSON).to.have.property(\"name\");  \r",
+									"    pm.expect(respJSON).to.have.property(\"nickname\");  \r",
+									"    pm.expect(respJSON).to.have.property(\"picture\");  \r",
+									"    pm.expect(respJSON).to.have.property(\"sub\");  \r",
+									"    pm.expect(respJSON).to.have.property(\"updated_at\");           \r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"\r",
+									"console.log('******* Generate, decode token Test 2 points = ' + points);\r",
+									"let points_token = pm.environment.get(\"points_token\") + points\r",
+									"console.log('******* Generate, decode token Tests current points = ' + points_token);\r",
+									"pm.environment.set(\"points_token\", points_token);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{wallace_jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{app_url}}/decode",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"decode"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3. get gromit jwt (1 points)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"gromit_jwt\", pm.response.json()[\"id_token\"]);\r",
+									"\r",
+									"let points = 0; \r",
+									"\r",
+									"pm.test(\"200 status code (0.25 pts)\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"pm.test(\"content is valid (0.75 pts)\", function () {\r",
+									"    const respJSON = pm.response.json();\r",
+									"    pm.expect(respJSON).to.have.property(\"access_token\");\r",
+									"    pm.expect(respJSON).to.have.property(\"id_token\");\r",
+									"    pm.expect(respJSON).to.have.property(\"scope\");\r",
+									"    pm.expect(respJSON).to.have.property(\"expires_in\");\r",
+									"    pm.expect(respJSON).to.have.property(\"token_type\");            \r",
+									"    points += 0.75\r",
+									"});\r",
+									"\r",
+									"console.log('******* Generate, decode token Test 3 points = ' + points);\r",
+									"let points_token = pm.environment.get(\"points_token\") + points\r",
+									"console.log('******* Generate, decode token Tests current points = ' + points_token);\r",
+									"pm.environment.set(\"points_token\", points_token);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \r\n\t\"username\": \"{{gromit_username}}\",\r\n\t\"password\": \"{{password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{app_url}}/login",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4. decode gromit jwt (0.5)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"gromit_sub\", pm.response.json()[\"sub\"]);\r",
+									"\r",
+									"let points = 0;\r",
+									"\r",
+									"pm.test(\"200 status code (0.25 pts)\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"pm.test(\"content is valid (0.25 pts)\", function () {\r",
+									"    const respJSON = pm.response.json();\r",
+									"    pm.expect(respJSON).to.have.property(\"aud\");\r",
+									"    pm.expect(respJSON).to.have.property(\"email\");  \r",
+									"    pm.expect(respJSON).to.have.property(\"email_verified\");  \r",
+									"    pm.expect(respJSON).to.have.property(\"exp\");  \r",
+									"    pm.expect(respJSON).to.have.property(\"iat\");  \r",
+									"    pm.expect(respJSON).to.have.property(\"iss\");  \r",
+									"    pm.expect(respJSON).to.have.property(\"name\");  \r",
+									"    pm.expect(respJSON).to.have.property(\"nickname\");  \r",
+									"    pm.expect(respJSON).to.have.property(\"picture\");  \r",
+									"    pm.expect(respJSON).to.have.property(\"sub\");  \r",
+									"    pm.expect(respJSON).to.have.property(\"updated_at\");           \r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"\r",
+									"console.log('******* Generate, decode token Test 4 points = ' + points);\r",
+									"let points_token = pm.environment.get(\"points_token\") + points\r",
+									"console.log('******* Generate, decode token Tests Total points = ' + points_token);\r",
+									"pm.environment.set(\"points_token\", points_token);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{gromit_jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{app_url}}/decode",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"decode"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Create a business (10 points)",
+			"item": [
+				{
+					"name": "1. wallace 1st biz (2.5 points)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"wallace_business_1\", pm.response.json()[\"id\"]);\r",
+									"\r",
+									"let points = 0; \r",
+									"\r",
+									"pm.test(\"status code is 201 (0.25 pts)\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"pm.test(\"content is valid (0.25 pts)\", function () {\r",
+									"    const respJSON = pm.response.json();\r",
+									"    pm.expect(pm.response.json()[\"name\"]).to.eq(\"Wallace 1\");\r",
+									"    pm.expect(pm.response.json()[\"street_address\"]).to.eq(\"321 South Mopac\");\r",
+									"    pm.expect(pm.response.json()[\"city\"]).to.eq(\"Austin\");\r",
+									"    pm.expect(pm.response.json()[\"state\"]).to.eq(\"TX\");\r",
+									"    pm.expect(pm.response.json()[\"zip_code\"]).to.eq(78704);\r",
+									"    pm.expect(pm.response.json()[\"inspection_score\"]).to.eq(4);\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"pm.test(\"self URL is valid (0.25 pts)\", function () {\r",
+									"    const respJSON = pm.response.json();\r",
+									"    pm.expect(respJSON[\"self\"]).to.eq(\r",
+									"        pm.environment.get(\"app_url\") + '/businesses/' + respJSON[\"id\"]);\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"pm.test(\"owner_id is valid (1.5 pts)\", function () {\r",
+									"    const respJSON = pm.response.json();\r",
+									"    pm.expect(pm.response.json()[\"owner_id\"]).to.eq(\r",
+									"        pm.environment.get(\"wallace_sub\"));\r",
+									"    points += 1.5\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The response content type is application.json (0.25 pts)\", function(){\r",
+									"    pm.expect(pm.response.contentInfo().contentType).to.eq('application/json');\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"console.log('******* Create a business Test 1 points = ' + points);\r",
+									"console.log('******* Create a business tests current points = ' + points);\r",
+									"pm.environment.set(\"points_create\", points);\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{wallace_jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Wallace 1\",\r\n  \"street_address\": \"321 South Mopac\",\r\n  \"city\": \"Austin\",\r\n  \"state\": \"TX\",\r\n  \"zip_code\": 78704,\r\n  \"inspection_score\": 4\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{app_url}}/businesses",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"businesses"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. wallace 2nd biz (2.5 points)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"wallace_business_2\", pm.response.json()[\"id\"]);\r",
+									"\r",
+									"let points = 0; \r",
+									"\r",
+									"pm.test(\"status code is 201 (0.25 pts)\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"pm.test(\"content is valid (0.25 pts)\", function () {\r",
+									"    const respJSON = pm.response.json();\r",
+									"    pm.expect(pm.response.json()[\"name\"]).to.eq(\"Wallace 2\");\r",
+									"    pm.expect(pm.response.json()[\"street_address\"]).to.eq(\"4900 N Lamar Blvd\");\r",
+									"    pm.expect(pm.response.json()[\"city\"]).to.eq(\"Austin\");\r",
+									"    pm.expect(pm.response.json()[\"state\"]).to.eq(\"TX\");\r",
+									"    pm.expect(pm.response.json()[\"zip_code\"]).to.eq(78751);\r",
+									"    pm.expect(pm.response.json()[\"inspection_score\"]).to.eq(3);\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"pm.test(\"self URL is valid (0.25 pts)\", function () {\r",
+									"    const respJSON = pm.response.json();\r",
+									"    pm.expect(respJSON[\"self\"]).to.eq(\r",
+									"        pm.environment.get(\"app_url\") + '/businesses/' + respJSON[\"id\"]);\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"pm.test(\"owner_id is valid (1.5 pts)\", function () {\r",
+									"    const respJSON = pm.response.json();\r",
+									"    pm.expect(pm.response.json()[\"owner_id\"]).to.eq(\r",
+									"        pm.environment.get(\"wallace_sub\"));\r",
+									"    points += 1.5\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The response content type is application.json (0.25 pts)\", function(){\r",
+									"    pm.expect(pm.response.contentInfo().contentType).to.eq('application/json');\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"console.log('******* Create a business Test 2 points = ' + points);\r",
+									"let points_create = pm.environment.get(\"points_create\") + points\r",
+									"console.log('******* Create a business Tests current points = ' + points_create);\r",
+									"pm.environment.set(\"points_create\", points_create);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{wallace_jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Wallace 2\",\r\n  \"street_address\": \"4900 N Lamar Blvd\",\r\n  \"city\": \"Austin\",\r\n  \"state\": \"TX\",\r\n  \"zip_code\": 78751,\r\n  \"inspection_score\": 3\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{app_url}}/businesses",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"businesses"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3. gromit biz (2.5 points)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"gromit_business\", pm.response.json()[\"id\"]);\r",
+									"\r",
+									"let points = 0; \r",
+									"\r",
+									"pm.test(\"1. Status code is 201 (0.25 pts)\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"pm.test(\"content is valid (0.25 pts)\", function () {\r",
+									"    const respJSON = pm.response.json();\r",
+									"    pm.expect(pm.response.json()[\"name\"]).to.eq(\"Gromit's Hot Dogs\");\r",
+									"    pm.expect(pm.response.json()[\"street_address\"]).to.eq(\"2301 Anderson Lane\");\r",
+									"    pm.expect(pm.response.json()[\"city\"]).to.eq(\"Austin\");\r",
+									"    pm.expect(pm.response.json()[\"state\"]).to.eq(\"TX\");\r",
+									"    pm.expect(pm.response.json()[\"zip_code\"]).to.eq(78756);\r",
+									"    pm.expect(pm.response.json()[\"inspection_score\"]).to.eq(2);\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"pm.test(\"self URL is valid (0.25 pts)\", function () {\r",
+									"    const respJSON = pm.response.json();\r",
+									"    pm.expect(respJSON[\"self\"]).to.eq(\r",
+									"        pm.environment.get(\"app_url\") + '/businesses/' + respJSON[\"id\"]);\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"pm.test(\"owner_id is valid (1.5 pts)\", function () {\r",
+									"    const respJSON = pm.response.json();\r",
+									"    pm.expect(pm.response.json()[\"owner_id\"]).to.eq(\r",
+									"        pm.environment.get(\"gromit_sub\"));\r",
+									"    points += 1.5\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The response content type is application.json (0.25 pts)\", function(){\r",
+									"    pm.expect(pm.response.contentInfo().contentType).to.eq('application/json');\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"console.log('******* Create a business Test 3 points = ' + points);\r",
+									"let points_create = pm.environment.get(\"points_create\") + points\r",
+									"console.log('******* Create a business Tests current points = ' + points_create);\r",
+									"pm.environment.set(\"points_create\", points_create);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{gromit_jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Gromit's Hot Dogs\",\r\n  \"street_address\": \"2301 Anderson Lane\",\r\n  \"city\": \"Austin\",\r\n  \"state\": \"TX\",\r\n  \"zip_code\": 78756,\r\n  \"inspection_score\": 2\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{app_url}}/businesses",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"businesses"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4. invalid body and jwt (1 point)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let points = 0;\r",
+									"\r",
+									"pm.test(\"400 status code (0.5 pts)\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"    points += 0.5\r",
+									"});\r",
+									"\r",
+									"pm.test(\"400 error message (0.25 pts)\", function () {\r",
+									"     pm.expect(pm.response.json()[\"Error\"]).to.eq(\"The request body is missing at least one of the required attributes\");\r",
+									"     points += 0.25\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The response content type is application.json (0.25 pts)\", function(){\r",
+									"    pm.expect(pm.response.contentInfo().contentType).to.eq('application/json');\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"console.log('******* Create a business Test 4 points = ' + points);\r",
+									"let points_create = pm.environment.get(\"points_create\") + points\r",
+									"console.log('******* Create a business Tests current points = ' + points_create);\r",
+									"pm.environment.set(\"points_create\", points_create);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{invalid_jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Invalid JWT\",\r\n  \"street_address\": \"2301 Anderson Lane\",\r\n  \"city\": \"Austin\",\r\n  \"state\": \"TX\",\r\n  \"inspection_score\": 2\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{app_url}}/businesses",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"businesses"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5. valid body, invalid JWT (1.5 points)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let points = 0; \r",
+									"\r",
+									"pm.test(\"status code is 401 (1.5 pts)\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"    points += 1.5\r",
+									"});\r",
+									"\r",
+									"console.log('******* Create a business Test 5 points = ' + points);\r",
+									"let points_create = pm.environment.get(\"points_create\") + points\r",
+									"console.log('******* Create a business Tests Total points = ' + points_create);\r",
+									"pm.environment.set(\"points_create\", points_create);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{invalid_jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Invalid JWT\",\r\n  \"street_address\": \"2301 Anderson Lane\",\r\n  \"city\": \"Austin\",\r\n  \"state\": \"TX\",\r\n  \"zip_code\": 78756,\r\n  \"inspection_score\": 2\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{app_url}}/businesses",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"businesses"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Get a business (10 points)",
+			"item": [
+				{
+					"name": "1. wallace biz with wallace jwt (2 points)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let points = 0; \r",
+									"\r",
+									"pm.test(\"status code is 200 (0.25 pts)\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"pm.test(\"content is valid (0.25 pts)\", function () {\r",
+									"    const respJSON = pm.response.json();\r",
+									"    pm.expect(pm.response.json()[\"name\"]).to.eq(\"Wallace 1\");\r",
+									"    pm.expect(pm.response.json()[\"street_address\"]).to.eq(\"321 South Mopac\");\r",
+									"    pm.expect(pm.response.json()[\"city\"]).to.eq(\"Austin\");\r",
+									"    pm.expect(pm.response.json()[\"state\"]).to.eq(\"TX\");\r",
+									"    pm.expect(pm.response.json()[\"zip_code\"]).to.eq(78704);\r",
+									"    pm.expect(pm.response.json()[\"inspection_score\"]).to.eq(4);\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"pm.test(\"self URL is valid (0.25 pts)\", function () {\r",
+									"    const respJSON = pm.response.json();\r",
+									"    pm.expect(respJSON[\"self\"]).to.eq(\r",
+									"        pm.environment.get(\"app_url\") + '/businesses/' + respJSON[\"id\"]);\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"pm.test(\"owner_id is valid (1 pts)\", function () {\r",
+									"    const respJSON = pm.response.json();\r",
+									"    pm.expect(pm.response.json()[\"owner_id\"]).to.eq(\r",
+									"        pm.environment.get(\"wallace_sub\"));\r",
+									"    points += 1\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The response content type is application.json (0.25 pts)\", function(){\r",
+									"    pm.expect(pm.response.contentInfo().contentType).to.eq('application/json');\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"console.log('******* Get a business Test 1 points = ' + points);\r",
+									"console.log('******* Get a business Tests current points = ' + points);\r",
+									"pm.environment.set(\"points_get_business\", points);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{wallace_jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{app_url}}/businesses/{{wallace_business_1}}",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"businesses",
+								"{{wallace_business_1}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. gromit biz with gromit jwt (2 points)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let points = 0; \r",
+									"\r",
+									"pm.test(\"1. Status code is 200 (0.25 pts)\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"pm.test(\"content is valid (0.25 pts)\", function () {\r",
+									"    const respJSON = pm.response.json();\r",
+									"    pm.expect(pm.response.json()[\"name\"]).to.eq(\"Gromit's Hot Dogs\");\r",
+									"    pm.expect(pm.response.json()[\"street_address\"]).to.eq(\"2301 Anderson Lane\");\r",
+									"    pm.expect(pm.response.json()[\"city\"]).to.eq(\"Austin\");\r",
+									"    pm.expect(pm.response.json()[\"state\"]).to.eq(\"TX\");\r",
+									"    pm.expect(pm.response.json()[\"zip_code\"]).to.eq(78756);\r",
+									"    pm.expect(pm.response.json()[\"inspection_score\"]).to.eq(2);\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"pm.test(\"self URL is valid (0.25 pts)\", function () {\r",
+									"    const respJSON = pm.response.json();\r",
+									"    pm.expect(respJSON[\"self\"]).to.eq(\r",
+									"        pm.environment.get(\"app_url\") + '/businesses/' + respJSON[\"id\"]);\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"pm.test(\"owner_id is valid (1 pts)\", function () {\r",
+									"    const respJSON = pm.response.json();\r",
+									"    pm.expect(pm.response.json()[\"owner_id\"]).to.eq(\r",
+									"        pm.environment.get(\"gromit_sub\"))\r",
+									"    points += 1\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The response content type is application.json (0.25 pts)\", function(){\r",
+									"    pm.expect(pm.response.contentInfo().contentType).to.eq('application/json');\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"console.log('******* Get a business Test 2 points = ' + points);\r",
+									"let points_get_business = pm.environment.get(\"points_get_business\") + points;\r",
+									"console.log('******* Get a business Tests current points = ' + points_get_business);\r",
+									"pm.environment.set(\"points_get_business\", points_get_business);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{gromit_jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{app_url}}/businesses/{{gromit_business}}",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"businesses",
+								"{{gromit_business}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3. wallace biz with gromit jwt (2 points)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let points = 0; \r",
+									"\r",
+									"pm.test(\"403 status code (1.5 pts)\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    points += 1.5\r",
+									"});\r",
+									"\r",
+									"pm.test(\"400 error message (0.25 pts)\", function () {\r",
+									"     pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No business with this business_id exists\");\r",
+									"     points += 0.25\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The response content type is application.json (0.25 pts)\", function(){\r",
+									"    pm.expect(pm.response.contentInfo().contentType).to.eq('application/json');\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"console.log('******* Get a business Test 3 points = ' + points);\r",
+									"let points_get_business = pm.environment.get(\"points_get_business\") + points;\r",
+									"console.log('******* Get a business Tests current points = ' + points_get_business);\r",
+									"pm.environment.set(\"points_get_business\", points_get_business);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{gromit_jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{app_url}}/businesses/{{wallace_business_1}}",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"businesses",
+								"{{wallace_business_1}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4. wallace biz with invalid jwt (2 points)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let points = 0; \r",
+									"\r",
+									"pm.test(\"status code is 401 (2 pts)\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"    points += 2\r",
+									"});\r",
+									"\r",
+									"console.log('******* Get a business Test 4 points = ' + points);\r",
+									"let points_get_business = pm.environment.get(\"points_get_business\") + points;\r",
+									"console.log('******* Get a business Tests current points = ' + points_get_business);\r",
+									"pm.environment.set(\"points_get_business\", points_get_business);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{invalid_jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{app_url}}/businesses/{{wallace_business_1}}",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"businesses",
+								"{{wallace_business_1}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5. non existent biz with wallace jwt (2 points)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let points = 0;\r",
+									"\r",
+									"pm.test(\"403 status code (1.5 pts)\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    points += 1.5\r",
+									"});\r",
+									"\r",
+									"pm.test(\"400 error message (0.25 pts)\", function () {\r",
+									"     pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No business with this business_id exists\");\r",
+									"     points += 0.25\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The response content type is application.json (0.25 pts)\", function(){\r",
+									"    pm.expect(pm.response.contentInfo().contentType).to.eq('application/json');\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"console.log('******* Get a business Test 5 points = ' + points);\r",
+									"let points_get_business = pm.environment.get(\"points_get_business\") + points;\r",
+									"console.log('******* Get a business Tests Total points = ' +points_get_business);\r",
+									"pm.environment.set(\"points_get_business\", points_get_business);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{wallace_jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{app_url}}/businesses/{{non_existent_business_id}}",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"businesses",
+								"{{non_existent_business_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "List businesses (10 points)",
+			"item": [
+				{
+					"name": "1. businesses without a JWT (2.5 points)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let points = 0;\r",
+									"\r",
+									"const respJSON = pm.response.json();\r",
+									"\r",
+									"pm.test(\"status code is 200 (0.5 pts)\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    points += 0.5\r",
+									"});\r",
+									"\r",
+									"pm.test(\"at least 3 businesses, all businesses have correct values (2 pts)\", function () {\r",
+									"    pm.expect(respJSON.length).to.be.at.least(3);\r",
+									"    // all 3 businesses created earlier are in the repsonse\r",
+									"    pm.expect(respJSON.filter((x) => x.name === 'Wallace 1' && x.owner_id === pm.environment.get(\"wallace_sub\"))\r",
+									"                                        .length).to.be.at.least(1)\r",
+									"    pm.expect(respJSON.filter((x) => x.name === 'Wallace 2'&& x.owner_id === pm.environment.get(\"wallace_sub\"))\r",
+									"                                        .length).to.be.at.least(1)\r",
+									"    pm.expect(respJSON.filter((x) => x.name === 'Gromit\\'s Hot Dogs' && x.owner_id === pm.environment.get(\"gromit_sub\"))\r",
+									"            .length).to.be.at.least(1)\r",
+									"    // all businesses have the required 8 attributes\r",
+									"    pm.expect(respJSON.filter((x) => x.id !== undefined && x.name !== undefined && x.city !== undefined\r",
+									"                                    && x.state !== undefined && x.street_address !== undefined && x.zip_code !== undefined\r",
+									"                                    && x.owner_id !== undefined && x.self !== undefined)\r",
+									"                            .length).to.eq(respJSON.length)\r",
+									"    // all businesses do not have the attribute inspection_score\r",
+									"    pm.expect(respJSON.filter((x) => x.inspection_score == undefined).length).to.eq(respJSON.length)\r",
+									"    points += 2\r",
+									"});\r",
+									"\r",
+									"console.log('******* List businesses Test 1 points = ' + points);\r",
+									"console.log('******* List businesses Tests current points = ' + points);\r",
+									"pm.environment.set(\"points_list_businesses\", points);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{app_url}}/businesses",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"businesses"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. businesses with invalid JWT (2.5 points)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let points = 0;\r",
+									"\r",
+									"const respJSON = pm.response.json();\r",
+									"\r",
+									"pm.test(\"status code is 200 (0.5 pts)\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    points += 0.5\r",
+									"});\r",
+									"\r",
+									"pm.test(\"at least 3 businesses, all businesses have correct values (2 pts)\", function () {\r",
+									"    pm.expect(respJSON.length).to.be.at.least(3);\r",
+									"    // all 3 businesses created earlier are in the repsonse\r",
+									"    pm.expect(respJSON.filter((x) => x.name === 'Wallace 1' && x.owner_id === pm.environment.get(\"wallace_sub\"))\r",
+									"                                        .length).to.be.at.least(1)\r",
+									"    pm.expect(respJSON.filter((x) => x.name === 'Wallace 2'&& x.owner_id === pm.environment.get(\"wallace_sub\"))\r",
+									"                                        .length).to.be.at.least(1)\r",
+									"    pm.expect(respJSON.filter((x) => x.name === 'Gromit\\'s Hot Dogs' && x.owner_id === pm.environment.get(\"gromit_sub\"))\r",
+									"            .length).to.be.at.least(1)\r",
+									"    // all businesses have the required 8 attributes\r",
+									"    pm.expect(respJSON.filter((x) => x.id !== undefined && x.name !== undefined && x.city !== undefined\r",
+									"                                    && x.state !== undefined && x.street_address !== undefined && x.zip_code !== undefined\r",
+									"                                    && x.owner_id !== undefined && x.self !== undefined)\r",
+									"                            .length).to.eq(respJSON.length)\r",
+									"    // all businesses do not have the attribute inspection_score\r",
+									"    pm.expect(respJSON.filter((x) => x.inspection_score == undefined).length).to.eq(respJSON.length)\r",
+									"    points += 2\r",
+									"});\r",
+									"\r",
+									"console.log('******* List businesses Test 2 points = ' + points);\r",
+									"let points_list_businesses = pm.environment.get(\"points_list_businesses\") + points;\r",
+									"console.log('******* List businesses Tests current points = ' + points_list_businesses);\r",
+									"pm.environment.set(\"points_list_businesses\", points_list_businesses);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{invalid_jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{app_url}}/businesses",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"businesses"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3. List wallace businesses (2.5 points)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let points = 0;\r",
+									"\r",
+									"const respJSON = pm.response.json();\r",
+									"\r",
+									"pm.test(\"status code is 200 (0.5 pts)\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    points += 0.5\r",
+									"});\r",
+									"\r",
+									"pm.test(\"wallace is the owner of all businesses, all businesses have correct values (2 pts)\", function () {\r",
+									"    pm.expect(respJSON.every( business => business.owner_id == pm.environment.get(\"wallace_sub\"))).to.be.true;\r",
+									"    pm.expect(respJSON.length).to.be.at.least(2);\r",
+									"    // both wallace businesses created earlier are in the repsonst\r",
+									"    pm.expect(respJSON.filter((x) => x.name === 'Wallace 1').length).to.be.at.least(1)\r",
+									"    pm.expect(respJSON.filter((x) => x.name === 'Wallace 2').length).to.be.at.least(1)\r",
+									"    // all businesses have the required 9 attributes\r",
+									"    pm.expect(respJSON.filter((x) => x.id !== undefined && x.name !== undefined && x.city !== undefined\r",
+									"                                    && x.state !== undefined && x.street_address !== undefined && x.zip_code !== undefined\r",
+									"                                    && x.owner_id !== undefined && x.inspection_score !== undefined && x.self !== undefined)\r",
+									"                            .length).to.eq(respJSON.length)\r",
+									"    points += 2\r",
+									"});\r",
+									"\r",
+									"console.log('******* List businesses Test 3 points = ' + points);\r",
+									"let points_list_businesses = pm.environment.get(\"points_list_businesses\") + points;\r",
+									"console.log('******* List businesses Tests current points = ' + points_list_businesses);\r",
+									"pm.environment.set(\"points_list_businesses\", points_list_businesses);\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{wallace_jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{app_url}}/businesses",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"businesses"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4. List gromit businesses (2.5 points)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let points = 0;\r",
+									"\r",
+									"const respJSON = pm.response.json();\r",
+									"\r",
+									"pm.test(\"status code is 200 (0.5 pts)\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    points += 0.5\r",
+									"});\r",
+									"\r",
+									"pm.test(\"gromit is the owner of all businesses, all businesses have correct values (2 pts)\", function () {\r",
+									"    pm.expect(respJSON.every( business => business.owner_id == pm.environment.get(\"gromit_sub\"))).to.be.true;\r",
+									"    pm.expect(respJSON.length).to.be.at.least(1);\r",
+									"    // both wallace businesses created earlier are in the repsonst\r",
+									"    pm.expect(respJSON.filter((x) => x.name === 'Gromit\\'s Hot Dogs').length).to.be.at.least(1)\r",
+									"    // all businesses have the required 9 attributes\r",
+									"    pm.expect(respJSON.filter((x) => x.id !== undefined && x.name !== undefined && x.city !== undefined\r",
+									"                                    && x.state !== undefined && x.street_address !== undefined && x.zip_code !== undefined\r",
+									"                                    && x.owner_id !== undefined && x.inspection_score !== undefined && x.self !== undefined)\r",
+									"                            .length).to.eq(respJSON.length)\r",
+									"    points += 2\r",
+									"});\r",
+									"\r",
+									"console.log('******* List businesses Test 4 points = ' + points);\r",
+									"let points_list_businesses = pm.environment.get(\"points_list_businesses\") + points;\r",
+									"console.log('******* List businesses Tests Total points = ' + points_list_businesses);\r",
+									"pm.environment.set(\"points_list_businesses\", points_list_businesses);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{gromit_jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{app_url}}/businesses",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"businesses"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Delete a business (10 points)",
+			"item": [
+				{
+					"name": "1. wallace biz1 with wallace jwt (1 point)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let points = 0; \r",
+									"\r",
+									"pm.test(\"1. Status code is 204 (1 pts)\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"    points += 1\r",
+									"});\r",
+									"\r",
+									"console.log('******* Delete a business Test 1 points = ' + points);\r",
+									"console.log('******* Delete a business Tests current points = ' + points);\r",
+									"pm.environment.set(\"points_delete\", points);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{wallace_jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{app_url}}/businesses/{{wallace_business_1}}",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"businesses",
+								"{{wallace_business_1}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. gromit biz with gromit jwt (2 points)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let points = 0; \r",
+									"\r",
+									"pm.test(\"1. Status code is 204 (2 pts)\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"    points += 2\r",
+									"});\r",
+									"\r",
+									"console.log('******* Delete a business Test 2 points = ' + points);\r",
+									"let points_delete = pm.environment.get(\"points_delete\") + points;\r",
+									"console.log('******* Delete a business Tests current points = ' + points_delete);\r",
+									"pm.environment.set(\"points_delete\", points_delete);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{gromit_jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{app_url}}/businesses/{{gromit_business}}",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"businesses",
+								"{{gromit_business}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3. wallace biz with gromit jwt (2 points)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let points = 0; \r",
+									"\r",
+									"pm.test(\"403 status code (1.5 pts)\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    points += 1.5\r",
+									"});\r",
+									"\r",
+									"pm.test(\"400 error message (0.25 pts)\", function () {\r",
+									"     pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No business with this business_id exists\");\r",
+									"     points += 0.25\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The response content type is application.json (0.25 pts)\", function(){\r",
+									"    pm.expect(pm.response.contentInfo().contentType).to.eq('application/json');\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"console.log('******* Delete a business Test 3 points = ' + points);\r",
+									"let points_delete = pm.environment.get(\"points_delete\") + points;\r",
+									"console.log('******* Delete a business Tests current points = ' + points_delete);\r",
+									"pm.environment.set(\"points_delete\", points_delete);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{gromit_jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{app_url}}/businesses/{{wallace_business_1}}",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"businesses",
+								"{{wallace_business_1}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4. wallace biz2 with invalid jwt (2 points)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let points = 0; \r",
+									"\r",
+									"pm.test(\"status code is 401 (2 pts)\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"    points += 2\r",
+									"});\r",
+									"\r",
+									"console.log('******* Delete a business Test 4 points = ' + points);\r",
+									"let points_delete = pm.environment.get(\"points_delete\") + points;\r",
+									"console.log('******* Delete a business Tests current points = ' + points_delete);\r",
+									"pm.environment.set(\"points_delete\", points_delete);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{invalid_jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{app_url}}/businesses/{{wallace_business_2}}",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"businesses",
+								"{{wallace_business_2}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5. deleted biz with wallace jwt (2 points)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let points = 0;\r",
+									"\r",
+									"pm.test(\"403 status code (1.5 pts)\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    points += 1.5\r",
+									"});\r",
+									"\r",
+									"pm.test(\"400 error message (0.25 pts)\", function () {\r",
+									"     pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No business with this business_id exists\");\r",
+									"     points += 0.25\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The response content type is application.json (0.25 pts)\", function(){\r",
+									"    pm.expect(pm.response.contentInfo().contentType).to.eq('application/json');\r",
+									"    points += 0.25\r",
+									"});\r",
+									"\r",
+									"console.log('******* Delete a business Test 5 points = ' + points);\r",
+									"let points_delete = pm.environment.get(\"points_delete\") + points;\r",
+									"console.log('******* Delete a business Tests current points = ' + points_delete);\r",
+									"pm.environment.set(\"points_delete\", points_delete);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{wallace_jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{app_url}}/businesses/{{wallace_business_1}}",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"businesses",
+								"{{wallace_business_1}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "6. wallace biz 2 with wallace jwt (1 point)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let points = 0; \r",
+									"\r",
+									"pm.test(\"1. Status code is 204 (1 pts)\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"    points += 1\r",
+									"});\r",
+									"\r",
+									"console.log('******* Delete a business Test 6 points = ' + points);\r",
+									"let points_delete = pm.environment.get(\"points_delete\") + points;\r",
+									"console.log('******* Delete a business Total points = ' + points_delete);\r",
+									"pm.environment.set(\"points_delete\", points_delete);\r",
+									"\r",
+									"console.log()\r",
+									"console.log('******* Generate, decode jwts Tests       Score = ' + pm.environment.get(\"points_token\") +  '/3');\r",
+									"console.log('******* Create a businees Tests           Score = ' + pm.environment.get(\"points_create\") + '/10');\r",
+									"console.log('******* Get a busineess Tests             Score = ' + pm.environment.get(\"points_get_business\") + '/10');\r",
+									"console.log('******* List busineess Tests              Score = ' + pm.environment.get(\"points_list_businesses\") + '/10');\r",
+									"console.log('******* Delete a business Tests           Score = ' + pm.environment.get(\"points_delete\") + '/10');\r",
+									"\r",
+									"\r",
+									"let total_points = pm.environment.get(\"points_token\")\r",
+									"            + pm.environment.get(\"points_create\")\r",
+									"            + pm.environment.get(\"points_get_business\")\r",
+									"            + pm.environment.get(\"points_list_businesses\")\r",
+									"            + pm.environment.get(\"points_delete\");\r",
+									"\r",
+									"console.log('******* All Postman Tests                 Score = ' + total_points + '/43');"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{wallace_jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{app_url}}/businesses/{{wallace_business_2}}",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"businesses",
+								"{{wallace_business_2}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

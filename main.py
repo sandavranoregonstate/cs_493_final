@@ -53,7 +53,6 @@ class AuthError(Exception):
         self.error = error
         self.status_code = status_code
 
-
 @app.errorhandler(AuthError)
 def handle_auth_error(ex):
     response = jsonify(ex.error)
@@ -123,10 +122,15 @@ def verify_jwt(request):
                             "description":
                                 "No RSA key in JWKS"}, 401)
 
+############################################################################################################
+BASE_URL = 'http://127.0.0.1:8080'
+# a5
 
 @app.route('/')
 def index():
-    return "Please navigate to /lodgings to use this API"\
+    return "Please navigate to /lodgings to use this API"
+
+# TODO: modify.
 
 # Create a lodging if the Authorization header contains a valid JWT
 @app.route('/lodgings', methods=['POST'])
@@ -141,20 +145,15 @@ def lodgings_post():
         return jsonify(id=new_lodging.key.id)
     else:
         return jsonify(error='Method not recogonized')
-
-# Decode the JWT supplied in the Authorization header
-@app.route('/decode', methods=['GET'])
-def decode_jwt():
-    payload = verify_jwt(request)
-    return payload          
-        
+    
+# Generate a JWT
 
 # Generate a JWT from the Auth0 domain and return it
 # Request: JSON body with 2 properties with "username" and "password"
 #       of a user registered with this Auth0 domain
 # Response: JSON with the JWT as the value of the property id_token
 @app.route('/login', methods=['POST'])
-def login_user():
+def generate_a_jwt(): # Copied from the explorations.
     content = request.get_json()
     username = content["username"]
     password = content["password"]
@@ -168,6 +167,154 @@ def login_user():
     r = requests.post(url, json=body, headers=headers)
     return r.text, 200, {'Content-Type':'application/json'}
 
+# Decode a JWT
+
+# Decode the JWT supplied in the Authorization header
+@app.route('/decode', methods=['GET'])
+def decode_a_jwt(): # Copied from the explorations.
+    payload = verify_jwt(request)
+    return payload
+
+# Create a Business
+@app.route('/businesses', methods=['POST'])
+def create_a_business():
+
+    # Decode the token.
+    # Get the content.
+    payload = verify_jwt(request)
+    content = request.get_json()
+
+    # TODO: Check for missing required fields
+    required_fields = ["name", "street_address", "city", "state", "zip_code", "inspection_score"]
+    for field in required_fields:
+        if field not in content:
+            return jsonify(Error="The request body is missing at least one of the required attributes"), 400
+
+    # Check if the token is valid.
+    if not payload:
+        return jsonify(Error="Invalid token"), 401
+    
+    # Generate entity.
+    user_id = payload["sub"]
+    new_business = datastore.entity.Entity(key=client.key("businesses"))
+    new_business.update({
+        "owner_id": user_id,
+        "name": content["name"],
+        "street_address": content["street_address"],
+        "city": content["city"],
+        "state": content["state"],
+        "zip_code": content["zip_code"],
+        "inspection_score": content["inspection_score"]
+    })
+
+    # Save entity.
+    client.put(new_business)
+
+    # Generate response.
+    response = {
+        "id": new_business.id,
+        "owner_id": user_id,
+        "name": content["name"],
+        "street_address": content["street_address"],
+        "city": content["city"],
+        "state": content["state"],
+        "zip_code": content["zip_code"],
+        "inspection_score": content["inspection_score"],
+        "self": BASE_URL + "/businesses/" + str(new_business.id)
+    }
+
+    return jsonify(response), 201
+
+# List Businesses
+@app.route('/businesses', methods=['GET'])
+def list_businesses():
+    # Decode the token
+    payload = verify_jwt(request)
+
+    business_list = []
+
+    if payload:
+        # Valid JWT provided
+        user_id = payload["sub"]
+        # Query businesses owned by the user
+        query = client.query(kind="businesses")
+        query.add_filter("owner_id", "=", user_id)
+        businesses = list(query.fetch())
+
+        for business in businesses:
+            business_list.append({
+                "id": business.key.id,
+                "owner_id": business["owner_id"],
+                "name": business["name"],
+                "street_address": business["street_address"],
+                "city": business["city"],
+                "state": business["state"],
+                "zip_code": business["zip_code"],
+                "inspection_score": business["inspection_score"],
+                "self": BASE_URL + "/businesses/" + str(business.key.id)
+            })
+    else:
+        # No valid JWT provided; list all businesses without inspection_score
+        query = client.query(kind="businesses")
+        businesses = list(query.fetch())
+
+        for business in businesses:
+            business_list.append({
+                "id": business.key.id,
+                "owner_id": business["owner_id"],
+                "name": business["name"],
+                "street_address": business["street_address"],
+                "city": business["city"],
+                "state": business["state"],
+                "zip_code": business["zip_code"],
+                "self": BASE_URL + "/businesses/" + str(business.key.id)
+            })
+
+    return jsonify(business_list), 200
+
+# Delete a Business
+@app.route('/businesses/<int:business_id>', methods=['DELETE'])
+def delete_business(business_id):
+    # Decode the token
+    payload = verify_jwt(request)
+
+    # Check if the token is valid
+    if not payload:
+        return jsonify(Error="Invalid or missing JWT"), 401
+
+    user_id = payload["sub"]
+
+    # Retrieve the business
+    business_key = client.key("businesses", business_id)
+    business = client.get(key=business_key)
+
+    # Check if the business exists
+    if not business:
+        return jsonify(Error="No business with this business_id exists"), 403
+
+    # Check if the user is the owner
+    if business["owner_id"] != user_id:
+        return jsonify(Error="You do not have permission to delete this business"), 403
+
+    # Delete the business
+    client.delete(business_key)
+
+    return '', 204
+
+"""# Get a Business
+@app.route('/businesses/<business_id>', methods=['GET'])
+def get_a_business(business_id):
+    pass
+# List Businesses
+@app.route('/businesses', methods=['GET'])
+def list_businesses():
+    pass
+# Delete a Business
+@app.route('/businesses/<business_id>', methods=['DELETE'])
+def delete_a_business():
+    pass"""
+
+############################################################################################################
+
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8080, debug=True)
-
