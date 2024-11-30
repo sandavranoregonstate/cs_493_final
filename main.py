@@ -130,6 +130,37 @@ def user_login():
     except:
         return jsonify({"Error": "Unauthorized"}), 401
 
+# Endpoint 2: Get all users.
+@app.route('/users', methods=['GET'])
+def get_users():
+    # Verify the JWT
+    try:
+        payload = verify_jwt(request)
+        user_sub = payload['sub']
+    except:
+        return jsonify({"Error": "Unauthorized"}), 401
+    # Query the user with this sub
+    query = client.query(kind='users')
+    query.add_filter('sub', '=', user_sub)
+    results = list(query.fetch())
+    if not results:
+        return jsonify({"Error": "The JWT is missing or invalid"}), 401
+    user = results[0]
+    if user.get('role') != 'admin':
+        return jsonify({"Error": "You don't have permission on this resource"}), 403
+    # User is admin, fetch all users
+    query = client.query(kind='users')
+    all_users = list(query.fetch())
+    response = []
+    for user_entity in all_users:
+        user_info = {
+            'id': user_entity.key.id,
+            'role': user_entity.get('role'),
+            'sub': user_entity.get('sub')
+        }
+        response.append(user_info)
+    return jsonify(response), 200
+
 # Test + Utilities.
 
 # Test if the app is running on the correct location.
