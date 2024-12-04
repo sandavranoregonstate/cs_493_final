@@ -8,6 +8,9 @@ import io
 app = Flask(__name__)
 app.secret_key = 'SECRET_KEY'
 
+BUCKET_NAME = "bucket_2_sd"
+BASE_URL = "http://127.0.0.1:8080"
+
 client = datastore.Client()
 from google.cloud import storage
 
@@ -212,7 +215,7 @@ def get_user(user_id):
 
     # Add avatar_url if the user has an avatar
     if 'avatar' in user:
-        response_body['avatar_url'] = "http://localhost:8080/users/{}/avatar".format(user.key.id)
+        response_body['avatar_url'] = "{}/users/{}/avatar".format(BASE_URL, user.key.id)
 
     # If the user role is 'instructor' or 'student', include 'courses' property
     if user.get('role') == 'instructor':
@@ -222,7 +225,7 @@ def get_user(user_id):
         query.add_filter('instructor_id', '=', user.key.id)
         courses = list(query.fetch())
         for course in courses:
-            course_link = "http://localhost:8080/courses/{}".format(course.key.id)
+            course_link = "{}/courses/{}".format(BASE_URL, course.key.id)
             response_body['courses'].append(course_link)
     elif user.get('role') == 'student':
         response_body['courses'] = []
@@ -231,7 +234,7 @@ def get_user(user_id):
         query.add_filter('students', '=', user.key.id)
         courses = list(query.fetch())
         for course in courses:
-            course_link = "http://localhost:8080/courses/{}".format(course.key.id)
+            course_link = "{}/courses/{}".format(BASE_URL, course.key.id)
             response_body['courses'].append(course_link)
 
     # Return the response
@@ -249,7 +252,7 @@ def upload_user_avatar(user_id):
         payload = verify_jwt(request)
         jwt_sub = payload['sub']
     except:
-        return jsonify({"Error": "The JWT is missing or invalid."}), 401
+        return jsonify({"Error": "Unauthorized"}), 401
 
     # Get the user associated with the JWT
     query = client.query(kind='users')
@@ -275,24 +278,36 @@ def upload_user_avatar(user_id):
     user = client.get(key)
     if not user:
         return jsonify({"Error": "User not found"}), 403
+    
+    # Check if 'file' is in the request files
+    if 'file' not in request.files:
+        return ('No file sent in request', 400)
 
     # Get the file from the request
-    file = request.files['file']
+    file_obj = request.files['file']
 
-    # Upload the file to Google Cloud Storage
+    # Create a storage client
     storage_client = storage.Client()
-    bucket_name = 'your-bucket-name'  # Replace with your bucket name
-    bucket = storage_client.bucket(bucket_name)
+
+    # Get a handle on the bucket using get_bucket
+    bucket = storage_client.get_bucket(BUCKET_NAME)  # Replace with your bucket name
+
+    # Create a blob object with the desired name
     blob_name = f'avatars/{user_id}.png'
     blob = bucket.blob(blob_name)
-    blob.upload_from_file(file, content_type='image/png')
+
+    # Position the file_obj to its beginning
+    file_obj.seek(0)
+
+    # Upload the file into Cloud Storage
+    blob.upload_from_file(file_obj, content_type='image/png')
 
     # Update the user entity to indicate the avatar exists
     user['avatar'] = blob_name
     client.put(user)
 
     # Construct the avatar URL
-    avatar_url = f"http://localhost:8080/users/{user_id}/avatar"
+    avatar_url = f"{BASE_URL}/users/{user_id}/avatar"
 
     return jsonify({"avatar_url": avatar_url}), 200
 
@@ -337,7 +352,7 @@ def get_user_avatar(user_id):
 
     # Retrieve the avatar from Google Cloud Storage
     storage_client = storage.Client()
-    bucket_name = 'your-bucket-name'  # Replace with your bucket name
+    bucket_name = BUCKET_NAME  # Replace with your bucket name
     bucket = storage_client.bucket(bucket_name)
     blob_name = user['avatar']
     blob = bucket.blob(blob_name)
@@ -395,7 +410,7 @@ def delete_user_avatar(user_id):
 
     # Delete the avatar from Google Cloud Storage
     storage_client = storage.Client()
-    bucket_name = 'your-bucket-name'  # Replace with your actual bucket name
+    bucket_name = BUCKET_NAME  # Replace with your actual bucket name
     bucket = storage_client.bucket(bucket_name)
     blob_name = user['avatar']
     blob = bucket.blob(blob_name)
@@ -477,7 +492,7 @@ def create_course():
         'title': course_entity['title'],
         'term': course_entity['term'],
         'instructor_id': course_entity['instructor_id'],
-        'self': f"http://localhost:8080/courses/{course_entity.key.id}"
+        'self': f"{BASE_URL}/courses/{course_entity.key.id}"
     }
 
     return jsonify(response_body), 201
@@ -523,7 +538,7 @@ def get_all_courses():
             'title': course.get('title'),
             'term': course.get('term'),
             'instructor_id': course.get('instructor_id'),
-            'self': f"http://localhost:8080/courses/{course.key.id}"
+            'self': f"{BASE_URL}/courses/{course.key.id}"
         }
         courses_array.append(course_info)
 
@@ -541,7 +556,7 @@ def get_all_courses():
 
     if next_courses_list:
         # There is a next page
-        next_url = f"http://localhost:8080/courses?limit={limit}&offset={next_offset}"
+        next_url = f"{BASE_URL}/courses?limit={limit}&offset={next_offset}"
         response_body['next'] = next_url
 
     return jsonify(response_body), 200
@@ -569,7 +584,7 @@ def get_course(course_id):
         'title': course.get('title'),
         'term': course.get('term'),
         'instructor_id': course.get('instructor_id'),
-        'self': f"http://localhost:8080/courses/{course.key.id}"
+        'self': f"{BASE_URL}/courses/{course.key.id}"
     }
 
     return jsonify(response_body), 200
@@ -647,7 +662,7 @@ def update_course(course_id):
         'title': course.get('title'),
         'term': course.get('term'),
         'instructor_id': course.get('instructor_id'),
-        'self': f"http://localhost:8080/courses/{course.key.id}"
+        'self': f"{BASE_URL}/courses/{course.key.id}"
     }
 
     return jsonify(response_body), 200
@@ -894,4 +909,4 @@ def view_entities():
 # Run the code.
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8080, debug=True)
-
+    
