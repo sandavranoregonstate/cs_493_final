@@ -11,7 +11,6 @@ app.secret_key = 'SECRET_KEY'
 client = datastore.Client()
 from google.cloud import storage
 
-
 #-auth0-#---------------------------------------------------------------
 from six.moves.urllib.request import urlopen
 from jose import jwt
@@ -175,7 +174,7 @@ def get_user(user_id):
         payload = verify_jwt(request)
         jwt_sub = payload['sub']
     except:
-        return jsonify({"Error": "The JWT is missing or invalid"}), 401
+        return jsonify({"Error": "Unauthorized"}), 401
 
     # Get the user associated with the JWT
     query = client.query(kind='users')
@@ -243,7 +242,7 @@ def get_user(user_id):
 def upload_user_avatar(user_id):
     # Check if 'file' is in the request
     if 'file' not in request.files:
-        return jsonify({"Error": "The request doesn't include the key 'file'."}), 400
+        return jsonify({"Error": "The request body is invalid"}), 400
 
     # Verify the JWT
     try:
@@ -305,7 +304,7 @@ def get_user_avatar(user_id):
         payload = verify_jwt(request)
         jwt_sub = payload['sub']
     except:
-        return jsonify({"Error": "The JWT is missing or invalid."}), 401
+        return jsonify({"Error": "Unauthorized"}), 401
 
     # Convert user_id to integer
     try:
@@ -334,7 +333,7 @@ def get_user_avatar(user_id):
 
     # Check if the user has an avatar
     if 'avatar' not in user:
-        return jsonify({"Error": "The user doesn't have an avatar"}), 404
+        return jsonify({"Error": "Not found"}), 404
 
     # Retrieve the avatar from Google Cloud Storage
     storage_client = storage.Client()
@@ -363,7 +362,7 @@ def delete_user_avatar(user_id):
         payload = verify_jwt(request)
         jwt_sub = payload['sub']
     except:
-        return jsonify({"Error": "The JWT is missing or invalid."}), 401
+        return jsonify({"Error": "Unauthorized"}), 401
 
     # Convert user_id to integer
     try:
@@ -392,7 +391,7 @@ def delete_user_avatar(user_id):
 
     # Check if the user has an avatar
     if 'avatar' not in user:
-        return jsonify({"Error": "The user doesn't have an avatar"}), 404
+        return jsonify({"Error": "Not found"}), 404
 
     # Delete the avatar from Google Cloud Storage
     storage_client = storage.Client()
@@ -422,7 +421,7 @@ def create_course():
         payload = verify_jwt(request)
         jwt_sub = payload['sub']
     except:
-        return jsonify({"Error": "The JWT is missing or invalid."}), 401
+        return jsonify({"Error": "Unauthorized"}), 401
 
     # Get the user associated with the JWT
     query = client.query(kind='users')
@@ -440,23 +439,23 @@ def create_course():
     # Get the request content
     content = request.get_json()
     if not content:
-        return jsonify({"Error": "The request is missing required attributes."}), 400
+        return jsonify({"Error": "The request body is invalid"}), 400
 
     required_attributes = ['subject', 'number', 'title', 'term', 'instructor_id']
     if any(attr not in content for attr in required_attributes):
-        return jsonify({"Error": "The request is missing required attributes."}), 400
+        return jsonify({"Error": "The request body is invalid"}), 400
 
     # Validate instructor_id
     try:
         instructor_id_int = int(content['instructor_id'])
     except ValueError:
-        return jsonify({"Error": "Invalid instructor_id"}), 400
+        return jsonify({"Error": "The request body is invalid"}), 400
 
     # Check that instructor_id corresponds to an instructor
     instructor_key = client.key('users', instructor_id_int)
     instructor = client.get(instructor_key)
     if not instructor or instructor.get('role') != 'instructor':
-        return jsonify({"Error": "Invalid instructor_id"}), 400
+        return jsonify({"Error": "The request body is invalid"}), 400
 
     # Create the course entity
     course_entity = datastore.Entity(key=client.key('courses'))
@@ -554,13 +553,13 @@ def get_course(course_id):
     try:
         course_id_int = int(course_id)
     except ValueError:
-        return jsonify({"Error": "No course with this ID exists."}), 404
+        return jsonify({"Error": "Not found"}), 404
 
     # Retrieve the course from Datastore
     key = client.key('courses', course_id_int)
     course = client.get(key)
     if not course:
-        return jsonify({"Error": "No course with this ID exists."}), 404
+        return jsonify({"Error": "Not found"}), 404
 
     # Build the response without the list of enrolled students
     response_body = {
@@ -620,7 +619,7 @@ def update_course(course_id):
         try:
             instructor_id_int = int(content['instructor_id'])
         except ValueError:
-            return jsonify({"Error": "Invalid instructor_id"}), 400
+            return jsonify({"Error": "The request body is invalid"}), 400
 
         # Check that instructor_id corresponds to an instructor
         instructor_key = client.key('users', instructor_id_int)
