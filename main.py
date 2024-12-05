@@ -150,7 +150,7 @@ def get_users():
     query.add_filter('sub', '=', user_sub)
     results = list(query.fetch())
     if not results:
-        return jsonify({"Error": "The JWT is missing or invalid"}), 401
+        return jsonify({"Error": "Unauthorized"}), 401
     user = results[0]
     if user.get('role') != 'admin':
         return jsonify({"Error": "You don't have permission on this resource"}), 403
@@ -167,8 +167,6 @@ def get_users():
         response.append(user_info)
     return jsonify(response), 200
 
-
-# ChatGPT, test. --------------------------------------------------------
 # Endpoint 3.
 @app.route('/users/<user_id>', methods=['GET'])
 def get_user(user_id):
@@ -185,7 +183,7 @@ def get_user(user_id):
     jwt_user_results = list(query.fetch())
     if not jwt_user_results:
         # The JWT is valid, but the user doesn't exist
-        return jsonify({"Error": "User not found"}), 403
+        return jsonify({"Error": "You don't have permission on this resource"}), 403
 
     jwt_user = jwt_user_results[0]
 
@@ -193,7 +191,7 @@ def get_user(user_id):
     try:
         user_id_int = int(user_id)
     except ValueError:
-        return jsonify({"Error": "Invalid user_id"}), 400
+        return jsonify({"Error": "The request body is invalid"}), 400
 
     # Check permissions
     if jwt_user.get('role') != 'admin' and jwt_user.key.id != user_id_int:
@@ -204,7 +202,7 @@ def get_user(user_id):
     user = client.get(key)
     if not user:
         # The user doesn't exist
-        return jsonify({"Error": "User not found"}), 403
+        return jsonify({"Error": "You don't have permission on this resource"}), 403
 
     # Construct the response body
     response_body = {
@@ -259,7 +257,7 @@ def upload_user_avatar(user_id):
     query.add_filter('sub', '=', jwt_sub)
     jwt_user_results = list(query.fetch())
     if not jwt_user_results:
-        return jsonify({"Error": "User not found"}), 403
+        return jsonify({"Error": "You don't have permission on this resource"}), 403
 
     jwt_user = jwt_user_results[0]
 
@@ -267,7 +265,7 @@ def upload_user_avatar(user_id):
     try:
         user_id_int = int(user_id)
     except ValueError:
-        return jsonify({"Error": "Invalid user_id"}), 400
+        return jsonify({"Error": "The request body is invalid"}), 400
 
     # Check if JWT belongs to the user in the path parameter
     if jwt_user.key.id != user_id_int:
@@ -277,11 +275,11 @@ def upload_user_avatar(user_id):
     key = client.key('users', user_id_int)
     user = client.get(key)
     if not user:
-        return jsonify({"Error": "User not found"}), 403
+        return jsonify({"Error": "You don't have permission on this resource"}), 403
     
     # Check if 'file' is in the request files
     if 'file' not in request.files:
-        return ('No file sent in request', 400)
+        return ('The request body is invalid', 400)
 
     # Get the file from the request
     file_obj = request.files['file']
@@ -325,14 +323,14 @@ def get_user_avatar(user_id):
     try:
         user_id_int = int(user_id)
     except ValueError:
-        return jsonify({"Error": "Invalid user_id"}), 400
+        return jsonify({"Error": "The request body is invalid"}), 400
 
     # Get the user associated with the JWT's sub
     query = client.query(kind='users')
     query.add_filter('sub', '=', jwt_sub)
     jwt_user_results = list(query.fetch())
     if not jwt_user_results:
-        return jsonify({"Error": "User not found"}), 403
+        return jsonify({"Error": "You don't have permission on this resource"}), 403
 
     jwt_user = jwt_user_results[0]
 
@@ -344,7 +342,7 @@ def get_user_avatar(user_id):
     key = client.key('users', user_id_int)
     user = client.get(key)
     if not user:
-        return jsonify({"Error": "User not found"}), 403
+        return jsonify({"Error": "You don't have permission on this resource"}), 403
 
     # Check if the user has an avatar
     if 'avatar' not in user:
@@ -361,7 +359,7 @@ def get_user_avatar(user_id):
     try:
         avatar_bytes = blob.download_as_bytes()
     except:
-        return jsonify({"Error": "Avatar not found"}), 404
+        return jsonify({"Error": "Not found"}), 404
 
     # Create a BytesIO stream
     avatar_stream = io.BytesIO(avatar_bytes)
@@ -383,14 +381,14 @@ def delete_user_avatar(user_id):
     try:
         user_id_int = int(user_id)
     except ValueError:
-        return jsonify({"Error": "Invalid user_id"}), 400
+        return jsonify({"Error": "The request body is invalid"}), 400
 
     # Get the user associated with the JWT's sub
     query = client.query(kind='users')
     query.add_filter('sub', '=', jwt_sub)
     jwt_user_results = list(query.fetch())
     if not jwt_user_results:
-        return jsonify({"Error": "User not found"}), 403
+        return jsonify({"Error": "You don't have permission on this resource"}), 403
 
     jwt_user = jwt_user_results[0]
 
@@ -402,7 +400,7 @@ def delete_user_avatar(user_id):
     key = client.key('users', user_id_int)
     user = client.get(key)
     if not user:
-        return jsonify({"Error": "User not found"}), 403
+        return jsonify({"Error": "You don't have permission on this resource"}), 403
 
     # Check if the user has an avatar
     if 'avatar' not in user:
@@ -443,7 +441,7 @@ def create_course():
     query.add_filter('sub', '=', jwt_sub)
     jwt_user_results = list(query.fetch())
     if not jwt_user_results:
-        return jsonify({"Error": "User not found"}), 403
+        return jsonify({"Error": "You don't have permission on this resource"}), 403
 
     jwt_user = jwt_user_results[0]
 
@@ -597,14 +595,14 @@ def update_course(course_id):
         payload = verify_jwt(request)
         jwt_sub = payload['sub']
     except:
-        return jsonify({"Error": "The JWT is missing or invalid."}), 401
+        return jsonify({"Error": "Unauthorized"}), 401
 
     # Get the user associated with the JWT
     query = client.query(kind='users')
     query.add_filter('sub', '=', jwt_sub)
     jwt_user_results = list(query.fetch())
     if not jwt_user_results:
-        return jsonify({"Error": "User not found"}), 403
+        return jsonify({"Error": "You don't have permission on this resource"}), 403
 
     jwt_user = jwt_user_results[0]
 
@@ -616,13 +614,13 @@ def update_course(course_id):
     try:
         course_id_int = int(course_id)
     except ValueError:
-        return jsonify({"Error": "Invalid course_id"}), 403
+        return jsonify({"Error": "You don't have permission on this resource"}), 403
 
     # Retrieve the course from Datastore
     key = client.key('courses', course_id_int)
     course = client.get(key)
     if not course:
-        return jsonify({"Error": "Course not found"}), 403
+        return jsonify({"Error": "You don't have permission on this resource"}), 403
 
     # Get the request content
     content = request.get_json()
@@ -640,7 +638,7 @@ def update_course(course_id):
         instructor_key = client.key('users', instructor_id_int)
         instructor = client.get(instructor_key)
         if not instructor or instructor.get('role') != 'instructor':
-            return jsonify({"Error": "Invalid instructor_id"}), 400
+            return jsonify({"Error": "The request body is invalid"}), 400
 
         # Update the instructor_id
         course['instructor_id'] = instructor_id_int
@@ -675,14 +673,14 @@ def delete_course(course_id):
         payload = verify_jwt(request)
         jwt_sub = payload['sub']
     except:
-        return jsonify({"Error": "The JWT is missing or invalid."}), 401
+        return jsonify({"Error": "Unauthorized"}), 401
 
     # Get the user associated with the JWT
     query = client.query(kind='users')
     query.add_filter('sub', '=', jwt_sub)
     jwt_user_results = list(query.fetch())
     if not jwt_user_results:
-        return jsonify({"Error": "User not found"}), 403
+        return jsonify({"Error": "You don't have permission on this resource"}), 403
 
     jwt_user = jwt_user_results[0]
 
@@ -694,13 +692,13 @@ def delete_course(course_id):
     try:
         course_id_int = int(course_id)
     except ValueError:
-        return jsonify({"Error": "Invalid course_id"}), 403
+        return jsonify({"Error": "You don't have permission on this resource"}), 403
 
     # Retrieve the course from Datastore
     key = client.key('courses', course_id_int)
     course = client.get(key)
     if not course:
-        return jsonify({"Error": "Course not found"}), 403
+        return jsonify({"Error": "You don't have permission on this resource"}), 403
 
     # Remove the course from each student's 'courses' list
     student_ids = course.get('students', [])
@@ -730,14 +728,14 @@ def update_course_enrollment(course_id):
         payload = verify_jwt(request)
         jwt_sub = payload['sub']
     except:
-        return jsonify({"Error": "The JWT is missing or invalid."}), 401
+        return jsonify({"Error": "Unauthorized"}), 401
 
     # Get the user associated with the JWT
     query = client.query(kind='users')
     query.add_filter('sub', '=', jwt_sub)
     jwt_user_results = list(query.fetch())
     if not jwt_user_results:
-        return jsonify({"Error": "User not found"}), 403
+        return jsonify({"Error": "You don't have permission on this resource"}), 403
 
     jwt_user = jwt_user_results[0]
 
@@ -745,13 +743,13 @@ def update_course_enrollment(course_id):
     try:
         course_id_int = int(course_id)
     except ValueError:
-        return jsonify({"Error": "Course not found"}), 403
+        return jsonify({"Error": "You don't have permission on this resource"}), 403
 
     # Retrieve the course from Datastore
     key = client.key('courses', course_id_int)
     course = client.get(key)
     if not course:
-        return jsonify({"Error": "Course not found"}), 403
+        return jsonify({"Error": "You don't have permission on this resource"}), 403
 
     # Check if user is admin or instructor of the course
     is_admin = jwt_user.get('role') == 'admin'
@@ -762,11 +760,11 @@ def update_course_enrollment(course_id):
     # Get the request content
     content = request.get_json()
     if not content or 'add' not in content or 'remove' not in content:
-        return jsonify({"Error": "Invalid request body"}), 400
+        return jsonify({"Error": "The request body is invalid"}), 400
 
     # Check that at least one of 'add' or 'remove' is non-empty
     if not content['add'] and not content['remove']:
-        return jsonify({"Error": "At least one of 'add' or 'remove' must be non-empty"}), 400
+        return jsonify({"Error": "The request body is invalid"}), 400
 
     # Convert 'add' and 'remove' to sets and check for integers
     try:
@@ -832,14 +830,14 @@ def get_course_enrollment(course_id):
         payload = verify_jwt(request)
         jwt_sub = payload['sub']
     except:
-        return jsonify({"Error": "The JWT is missing or invalid."}), 401
+        return jsonify({"Error": "Unauthorized"}), 401
 
     # Get the user associated with the JWT
     query = client.query(kind='users')
     query.add_filter('sub', '=', jwt_sub)
     jwt_user_results = list(query.fetch())
     if not jwt_user_results:
-        return jsonify({"Error": "User not found"}), 403
+        return jsonify({"Error": "You don't have permission on this resource"}), 403
 
     jwt_user = jwt_user_results[0]
 
@@ -847,13 +845,13 @@ def get_course_enrollment(course_id):
     try:
         course_id_int = int(course_id)
     except ValueError:
-        return jsonify({"Error": "Course not found"}), 403
+        return jsonify({"Error": "You don't have permission on this resource"}), 403
 
     # Retrieve the course from Datastore
     key = client.key('courses', course_id_int)
     course = client.get(key)
     if not course:
-        return jsonify({"Error": "Course not found"}), 403
+        return jsonify({"Error": "You don't have permission on this resource"}), 403
 
     # Check if user is admin or instructor of the course
     is_admin = jwt_user.get('role') == 'admin'
@@ -868,7 +866,6 @@ def get_course_enrollment(course_id):
 
     # Return the list as JSON array
     return jsonify(student_ids), 200
-# ChatGPT, test. --------------------------------------------------------
 
 # Test + Utilities.
 
